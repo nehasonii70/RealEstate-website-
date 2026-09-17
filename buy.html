@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Buy Property in Surat - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Top Introduction -->
+    <div class="mb-12 text-center lg:text-left">
+      <span class="text-sm font-semibold uppercase tracking-wider text-accent-500 font-medium">Acquisition Desk</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Buying Premium Real Estate in Surat</h1>
+      <p class="text-slate-300 max-w-3xl mt-3 leading-relaxed">
+        From navigating RERA compliance to calculating monthly mortgage payments, DreamNest Surat provides direct resources to help corporate buyers, NRI investors, and families acquire properties with clarity.
+      </p>
+    </div>
+
+    <!-- Grid: Calculator & Buyer Guide -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      
+      <!-- Column 1: Dynamic EMI Calculator (Alpine) -->
+      <div class="glass-card-no-hover p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6 shadow-xl"
+           x-data="{
+             propertyPrice: 15000000,
+             downPaymentPercent: 20,
+             loanTerm: 20,
+             interestRate: 8.5,
+             get downPaymentAmount() {
+               return Math.round((this.propertyPrice * this.downPaymentPercent) / 100);
+             },
+             get loanAmount() {
+               return this.propertyPrice - this.downPaymentAmount;
+             },
+             get monthlyEMI() {
+               const principal = this.loanAmount;
+               const monthlyRate = (this.interestRate / 100) / 12;
+               const totalMonths = this.loanTerm * 12;
+               if (monthlyRate === 0) return Math.round(principal / totalMonths);
+               const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+               return Math.round(emi);
+             },
+             get totalInterest() {
+               const totalMonths = this.loanTerm * 12;
+               return Math.round((this.monthlyEMI * totalMonths) - this.loanAmount);
+             },
+             get totalPayment() {
+               return this.loanAmount + this.totalInterest;
+             },
+             formatCurrency(value) {
+               if (value >= 10000000) {
+                 return '₹' + (value / 10000000).toFixed(2) + ' Cr';
+               } else if (value >= 100000) {
+                 return '₹' + (value / 100000).toFixed(2) + ' Lakh';
+               } else {
+                 return '₹' + value.toLocaleString('en-IN');
+               }
+             }
+           }">
+        
+        <div>
+          <h3 class="text-xl font-bold text-white mb-1">Mortgage EMI Calculator</h3>
+          <p class="text-xs text-slate-400">Calculate your monthly outflow for properties in Surat.</p>
+        </div>
+
+        <!-- Price Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Property Price</span>
+            <span class="text-accent-500 font-bold" x-text="formatCurrency(propertyPrice)"></span>
+          </div>
+          <input type="range" min="3000000" max="100000000" step="500000" x-model="propertyPrice" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>₹30 L</span>
+            <span>₹5 Cr</span>
+            <span>₹10 Cr</span>
+          </div>
+        </div>
+
+        <!-- Down Payment Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Down Payment (%)</span>
+            <span class="text-accent-500 font-bold" x-text="downPaymentPercent + '% (' + formatCurrency(downPaymentAmount) + ')'"></span>
+          </div>
+          <input type="range" min="10" max="80" step="5" x-model="downPaymentPercent" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>10%</span>
+            <span>45%</span>
+            <span>80%</span>
+          </div>
+        </div>
+
+        <!-- Loan Term Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Loan Term</span>
+            <span class="text-accent-500 font-bold" x-text="loanTerm + ' Years'"></span>
+          </div>
+          <input type="range" min="5" max="30" step="1" x-model="loanTerm" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>5 Years</span>
+            <span>18 Years</span>
+            <span>30 Years</span>
+          </div>
+        </div>
+
+        <!-- Interest Rate Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Interest Rate (p.a.)</span>
+            <span class="text-accent-500 font-bold" x-text="interestRate + '%'"></span>
+          </div>
+          <input type="range" min="6.5" max="14" step="0.1" x-model="interestRate" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>6.5% (Prime)</span>
+            <span>10%</span>
+            <span>14%</span>
+          </div>
+        </div>
+
+        <!-- Output Display -->
+        <div class="bg-primary-950 p-6 rounded-xl border border-slate-800/80 space-y-4">
+          <div class="text-center pb-4 border-b border-slate-800">
+            <span class="text-xs text-slate-400 tracking-wider font-semibold block uppercase">Estimated Monthly EMI</span>
+            <span class="text-3xl font-extrabold text-accent-500 mt-1 block" x-text="monthlyEMI.toLocaleString('en-IN') + ' / mo'"></span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-xs">
+            <div>
+              <span class="text-slate-400 block">Principal Loan Amount:</span>
+              <span class="text-white font-bold block mt-0.5" x-text="formatCurrency(loanAmount)"></span>
+            </div>
+            <div>
+              <span class="text-slate-400 block">Total Interest Payable:</span>
+              <span class="text-white font-bold block mt-0.5" x-text="formatCurrency(totalInterest)"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Buyer Guide Stages -->
+      <div class="space-y-6">
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-xl font-bold text-white mb-6 pb-2 border-b border-slate-800 flex items-center">
+            <i data-lucide="book-open" class="w-5 h-5 text-accent-500 mr-2"></i> Buyer's Acquisition Playbook
+          </h3>
+
+          <div class="space-y-6 relative pl-6 border-l-2 border-slate-800">
+            <!-- Stage 1 -->
+            <div class="relative">
+              <span class="absolute -left-[31px] top-0 bg-accent-500 text-primary-950 font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center">1</span>
+              <h4 class="font-bold text-white text-sm uppercase tracking-wide">RERA Certification Review</h4>
+              <p class="text-xs text-slate-400 mt-1">Ensure the project possesses a valid RERA registration code issued by GUJRERA. DreamNest filters out all non-RERA certified builder properties.</p>
+            </div>
+
+            <!-- Stage 2 -->
+            <div class="relative">
+              <span class="absolute -left-[31px] top-0 bg-accent-500 text-primary-950 font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center">2</span>
+              <h4 class="font-bold text-white text-sm uppercase tracking-wide">Stamp Duty and Taxation</h4>
+              <p class="text-xs text-slate-400 mt-1">Gujarat charges a Stamp Duty of 4.9% of the property value. Registration charges stand at 1%. Note that women buyers get an exemption on registration fees.</p>
+            </div>
+
+            <!-- Stage 3 -->
+            <div class="relative">
+              <span class="absolute -left-[31px] top-0 bg-accent-500 text-primary-950 font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center">3</span>
+              <h4 class="font-bold text-white text-sm uppercase tracking-wide">NRI Banking Protocols</h4>
+              <p class="text-xs text-slate-400 mt-1">NRI buyers must transact through NRE or NRO accounts complying with FEMA regulations. We provide direct legal assistance for NRI capital repatriation paths.</p>
+            </div>
+
+            <!-- Stage 4 -->
+            <div class="relative">
+              <span class="absolute -left-[31px] top-0 bg-accent-500 text-primary-950 font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center">4</span>
+              <h4 class="font-bold text-white text-sm uppercase tracking-wide">Possession Checklists</h4>
+              <p class="text-xs text-slate-400 mt-1">Conduct detailed plumbing, plastering, wiring, and finishing inspections before signing the final possession handover. Our brokers accompany you during execution.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action -->
+        <div class="bg-primary-900/30 border border-slate-800 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="font-bold text-white text-sm">Ready to buy property?</h4>
+            <p class="text-xs text-slate-400 mt-1">Access our verified listings filtered specifically for buyers.</p>
+          </div>
+          <a href="{{ url_for('properties') }}?tab=buy" class="inline-flex items-center px-5 py-2.5 rounded-lg text-xs font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-all">
+            Search Buy Listings <i data-lucide="arrow-right" class="ml-1.5 w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

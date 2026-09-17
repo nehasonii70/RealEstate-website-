@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Rent Property in Surat - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24"
+      x-data="{
+        monthlyRent: 45000,
+        depositMonths: 3,
+        advanceMonths: 1,
+        brokerageRate: 1,
+        showApplyModal: false,
+        showToast: false,
+        toastMessage: '',
+        get securityDeposit() {
+          return this.monthlyRent * this.depositMonths;
+        },
+        get advanceRent() {
+          return this.monthlyRent * this.advanceMonths;
+        },
+        get brokerageFee() {
+          return this.monthlyRent * this.brokerageRate;
+        },
+        get totalUpfront() {
+          return this.securityDeposit + this.advanceRent + this.brokerageFee;
+        }
+      }">
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Toast Notice -->
+    <div id="rent-toast"></div>
+
+    <!-- Top Section -->
+    <div class="mb-12 text-center lg:text-left">
+      <span class="text-sm font-semibold uppercase tracking-wider text-accent-500 font-medium">Rental Desk</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Renting Luxury & Commercial Real Estate</h1>
+      <p class="text-slate-300 max-w-3xl mt-3 leading-relaxed">
+        From corporate office shell suites on Dumas Road to fully furnished 3 BHK apartments in Vesu. Calculate upfront move-in cash outlays and learn about local registration codes.
+      </p>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      
+      <!-- Upfront Cost Calculator -->
+      <div class="glass-card-no-hover p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6 shadow-xl">
+        <div>
+          <h3 class="text-xl font-bold text-white mb-1">Upfront Rental Calculator</h3>
+          <p class="text-xs text-slate-400">Estimate your complete upfront cash outflow to lease properties in Surat.</p>
+        </div>
+
+        <!-- Monthly Rent Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Target Monthly Rent</span>
+            <span class="text-accent-500 font-bold" x-text="'₹' + monthlyRent.toLocaleString('en-IN') + ' / mo'"></span>
+          </div>
+          <input type="range" min="15000" max="300000" step="5000" x-model="monthlyRent" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>₹15,000</span>
+            <span>₹1.5 Lakh</span>
+            <span>₹3.0 Lakh</span>
+          </div>
+        </div>
+
+        <!-- Deposit Months -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Security Deposit (Months)</label>
+            <div class="relative">
+              <select x-model="depositMonths" class="w-full rounded-lg glass-input py-2.5 pl-3 pr-10 text-xs appearance-none">
+                <option :value="2">2 Months</option>
+                <option :value="3">3 Months (Standard)</option>
+                <option :value="4">4 Months</option>
+                <option :value="6">6 Months (Commercial)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Advance Months -->
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Advance Rent (Months)</label>
+            <div class="relative">
+              <select x-model="advanceMonths" class="w-full rounded-lg glass-input py-2.5 pl-3 pr-10 text-xs appearance-none">
+                <option :value="1">1 Month</option>
+                <option :value="2">2 Months</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brokerage Fee Option -->
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">DreamNest Brokerage Commission</label>
+          <div class="flex space-x-4 mt-1.5 text-xs text-slate-300">
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="radio" x-model="brokerageRate" :value="1" class="text-accent-500 mr-2 h-4 w-4 bg-primary-950 border-slate-700">
+              1 Month Rent (Standard)
+            </label>
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="radio" x-model="brokerageRate" :value="0.5" class="text-accent-500 mr-2 h-4 w-4 bg-primary-950 border-slate-700">
+              15 Days Rent (Corporate Partner)
+            </label>
+          </div>
+        </div>
+
+        <!-- Outputs breakdown -->
+        <div class="bg-primary-950 p-6 rounded-xl border border-slate-800 space-y-4 text-xs">
+          <div class="flex justify-between border-b border-slate-800 pb-2">
+            <span class="text-slate-400">Refundable Security Deposit:</span>
+            <span class="text-white font-bold" x-text="'₹' + securityDeposit.toLocaleString('en-IN')"></span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-2">
+            <span class="text-slate-400">Advance Rent Amount:</span>
+            <span class="text-white font-bold" x-text="'₹' + advanceRent.toLocaleString('en-IN')"></span>
+          </div>
+          <div class="flex justify-between border-b border-slate-800 pb-2">
+            <span class="text-slate-400">Brokerage (+ GST):</span>
+            <span class="text-white font-bold" x-text="'₹' + brokerageFee.toLocaleString('en-IN')"></span>
+          </div>
+          <div class="flex justify-between pt-2">
+            <span class="text-slate-300 font-bold uppercase text-sm">Total Upfront Cash:</span>
+            <span class="text-accent-500 font-extrabold text-lg" x-text="'₹' + totalUpfront.toLocaleString('en-IN')"></span>
+          </div>
+        </div>
+
+        <button @click="showApplyModal = true"
+                class="w-full py-3.5 rounded-lg text-sm font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-colors shadow-lg hover:shadow-accent-500/25">
+          Submit Pre-Lease Application
+        </button>
+      </div>
+
+      <!-- Tenant Legal Resource & FAQ -->
+      <div class="space-y-6">
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-xl font-bold text-white mb-6 pb-2 border-b border-slate-800 flex items-center">
+            <i data-lucide="scale" class="w-5 h-5 text-accent-500 mr-2"></i> Tenant Legal Guide (Surat, Gujarat)
+          </h3>
+          
+          <div class="space-y-6 text-sm">
+            <div class="flex items-start">
+              <div class="flex-shrink-0 bg-accent-500/10 p-2.5 rounded text-accent-400 mt-0.5">
+                <i data-lucide="file-signature" class="w-4 h-4"></i>
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold text-white text-xs sm:text-sm">11-Month Notarized Rental Contract</h4>
+                <p class="text-xs text-slate-400 mt-1">In Gujarat, standard residential tenancy agreements span 11 months. Contracts above 12 months require mandatory sub-registrar registration and stamp duty payment.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <div class="flex-shrink-0 bg-accent-500/10 p-2.5 rounded text-accent-400 mt-0.5">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold text-white text-xs sm:text-sm">Mandatory Surat Police Verification</h4>
+                <p class="text-xs text-slate-400 mt-1">Tenancy verification by Surat Police is legally mandatory. The landlord must submit the verified tenant form alongside identity and job documents before move-in.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <div class="flex-shrink-0 bg-accent-500/10 p-2.5 rounded text-accent-400 mt-0.5">
+                <i data-lucide="home" class="w-4 h-4"></i>
+              </div>
+              <div class="ml-4">
+                <h4 class="font-bold text-white text-xs sm:text-sm">Society Maintenance & Utility Bills</h4>
+                <p class="text-xs text-slate-400 mt-1">Determine if society maintenance charges are included in the monthly rent. Under standard Surat terms, municipal taxes are cleared by owners, and electricity is paid by tenants.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct search action -->
+        <div class="bg-primary-900/30 border border-slate-800 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="font-bold text-white text-sm">Need a rental property immediately?</h4>
+            <p class="text-xs text-slate-400 mt-1">Browse our listings filtered exclusively for luxury and commercial tenants.</p>
+          </div>
+          <a href="{{ url_for('properties') }}?tab=rent" class="inline-flex items-center px-5 py-2.5 rounded-lg text-xs font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-all">
+            Search Rent Listings <i data-lucide="arrow-right" class="ml-1.5 w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Tenant Application Modal (Alpine) -->
+  <div x-show="showApplyModal" 
+       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary-950/80 backdrop-blur-sm"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:leave="transition ease-in duration-200"
+       style="display: none;">
+    
+    <div @click.away="showApplyModal = false" 
+         class="glass-card-no-hover w-full max-w-lg rounded-2xl border border-slate-700/60 p-6 sm:p-8 space-y-6 relative shadow-2xl">
+      
+      <button @click="showApplyModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center">
+        <h3 class="text-2xl font-bold text-white">Pre-Lease Tenant Application</h3>
+        <p class="text-xs text-slate-400 mt-1">Provide quick details to expedite property viewing approval.</p>
+      </div>
+
+      <div id="rental-form-container">
+        <form hx-post="{{ url_for('submit_inquiry') }}"
+              hx-target="#rental-form-container"
+              class="space-y-4 text-left">
+          
+          <input type="hidden" name="type" value="Rental Application">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Your Full Name</label>
+            <input type="text" name="name" required placeholder="e.g. Anand Vyas" 
+                   class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Your Mobile</label>
+              <input type="tel" name="phone" required placeholder="+91 99999 88888" 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Employer / Company Name</label>
+              <input type="text" name="company" placeholder="e.g. L&T Surat" 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Move-In Date</label>
+              <input type="date" name="move_in_date" required 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Family Occupants Size</label>
+              <select name="occupants" class="w-full rounded-lg glass-input py-2.5 px-3 text-sm appearance-none">
+                <option value="1">1 Person (Single)</option>
+                <option value="2">2 Persons</option>
+                <option value="3-4">3-4 Persons</option>
+                <option value="5+">5+ Persons</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" 
+                    class="w-full py-3.5 rounded-lg text-sm font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-colors shadow-lg shadow-accent-500/20">
+              Submit Rental Application
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+{% endblock %}

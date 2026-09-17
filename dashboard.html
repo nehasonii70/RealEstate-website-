@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 pb-6 border-b border-slate-800">
+      <div>
+        <h1 class="text-3xl font-extrabold text-white flex items-center">
+          <i data-lucide="user" class="w-7 h-7 text-accent-500 mr-3"></i> Welcome, {{ session.get('name') }}
+        </h1>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">Manage your favorited properties, consult agents, and review search alerts.</p>
+      </div>
+      <a href="{{ url_for('logout') }}" class="mt-4 md:mt-0 px-4 py-2 bg-slate-800 hover:bg-red-500 hover:text-white rounded text-xs font-bold transition-all">
+        Logout Session
+      </a>
+    </div>
+
+    <!-- Favorite Properties Section -->
+    <div class="space-y-6">
+      <h2 class="text-xl font-bold text-white flex items-center">
+        <i data-lucide="heart" class="w-5 h-5 text-accent-500 mr-2 fill-accent-500"></i> My Favorited Listings
+      </h2>
+
+      {% if not properties %}
+        <div class="text-center py-20 bg-slate-900/30 border border-slate-800 rounded-2xl">
+          <i data-lucide="heart-off" class="w-12 h-12 text-accent-500/50 mx-auto mb-4"></i>
+          <h3 class="text-lg font-bold text-white">No properties saved yet</h3>
+          <p class="text-slate-400 text-xs mt-1">Explore our catalog and click the heart icon on any property to save it here.</p>
+          <a href="{{ url_for('properties') }}" class="mt-6 inline-flex items-center px-5 py-2.5 rounded-lg text-xs font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-all shadow-md">
+            Browse Properties <i data-lucide="arrow-right" class="ml-1.5 w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      {% else %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% for p in properties %}
+            <div class="glass-card rounded-2xl overflow-hidden flex flex-col group" id="fav-card-{{ p.id }}">
+              <div class="relative overflow-hidden aspect-video">
+                <img src="{{ p.image.split(',')[0] }}" alt="{{ p.title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <span class="absolute top-4 left-4 bg-accent-500 text-primary-950 font-bold text-xs uppercase tracking-wider px-3 py-1 rounded">{{ p.tag }}</span>
+                
+                <button hx-post="{{ url_for('toggle_favorite', id=p.id) }}"
+                        hx-swap="delete"
+                        hx-target="#fav-card-{{ p.id }}"
+                        class="absolute top-4 right-4 bg-primary-950/80 hover:bg-primary-950 text-red-500 p-2.5 rounded-full transition-colors">
+                  <i data-lucide="heart" class="w-4 h-4 fill-red-500 text-red-500"></i>
+                </button>
+              </div>
+              <div class="p-6 flex-grow flex flex-col justify-between">
+                <div>
+                  <span class="text-xs font-semibold tracking-wider text-accent-400 uppercase">{{ p.type }}</span>
+                  <h3 class="text-xl font-bold text-white mt-1">{{ p.title }}</h3>
+                  <p class="text-slate-400 text-sm flex items-center mt-2">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent-500 mr-1"></i> <span class="capitalize">{{ p.location }}</span>, Surat
+                  </p>
+                  <div class="grid grid-cols-3 gap-4 py-4 my-4 border-y border-slate-700/50 text-xs text-slate-300">
+                    <div class="flex items-center"><i data-lucide="bed-double" class="w-4 h-4 text-accent-500 mr-2"></i> {{ p.bedrooms }}</div>
+                    <div class="flex items-center"><i data-lucide="bath" class="w-4 h-4 text-accent-500 mr-2"></i> {{ p.bathrooms }}</div>
+                    <div class="flex items-center"><i data-lucide="maximize" class="w-4 h-4 text-accent-500 mr-2"></i> {{ p.area }}</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4">
+                  <div class="text-lg font-extrabold text-white">{{ p.price_str }}</div>
+                  <a href="{{ url_for('property_details', id=p.id) }}" class="px-4 py-2 rounded bg-slate-800 hover:bg-accent-500 hover:text-primary-950 text-sm font-semibold transition-all">View Details</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</main>
+{% endblock %}

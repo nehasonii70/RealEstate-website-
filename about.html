@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24">
+  
+  <!-- Hero Header / Our Story -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div class="space-y-6">
+        <span class="text-sm font-semibold uppercase tracking-wider text-accent-500">Corporate Profile</span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">Elevating Surat's Skyline through Premium Brokerage</h1>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          DreamNest Surat was established in 2018 with a unified vision: to inject transaction transparency, structural compliance, and premium aesthetic consultation into Surat's booming real estate market. 
+        </p>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          Headquartered on Dumas Road, we focus exclusively on high-growth hotspots, advising NRI investors on regulatory channels, corporations on retail storefront acquisition, and local families on their luxury residential purchases.
+        </p>
+      </div>
+      <div class="relative">
+        <div class="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-accent-500/20 to-transparent blur opacity-75"></div>
+        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-900">
+          <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80" alt="DreamNest HQ Office" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Animated Performance Counter Panel (Alpine) -->
+  <section class="bg-primary-900/30 border-y border-slate-800/80 py-16 my-24"
+           x-data="{
+             listingsCount: 0,
+             transactionsCount: 0,
+             nriCount: 0,
+             advisersCount: 0,
+             init() {
+               let duration = 1500;
+               let steps = 30;
+               let interval = duration / steps;
+               let step = 0;
+               let timer = setInterval(() => {
+                 step++;
+                 this.listingsCount = Math.round((850 / steps) * step);
+                 this.transactionsCount = Math.round((1200 / steps) * step);
+                 this.nriCount = Math.round((450 / steps) * step);
+                 this.advisersCount = Math.round((25 / steps) * step);
+                 if (step >= steps) {
+                   this.listingsCount = 850;
+                   this.transactionsCount = 1200;
+                   this.nriCount = 450;
+                   this.advisersCount = 25;
+                   clearInterval(timer);
+                 }
+               }, interval);
+             }
+           }">
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        
+        <div class="space-y-2">
+          <span class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-accent-500 flex items-center justify-center">
+            <span x-text="listingsCount"></span>+
+          </span>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Active Premium Listings</p>
+        </div>
+
+        <div class="space-y-2">
+          <span class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-accent-500 flex items-center justify-center">
+            <span x-text="transactionsCount"></span>+
+          </span>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Transactions Completed</p>
+        </div>
+
+        <div class="space-y-2">
+          <span class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-accent-500 flex items-center justify-center">
+            <span x-text="nriCount"></span>+
+          </span>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">NRI Clients Serviced</p>
+        </div>
+
+        <div class="space-y-2">
+          <span class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-accent-500 flex items-center justify-center">
+            <span x-text="advisersCount"></span>+
+          </span>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Licensed Advisers</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Values Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-16">
+      <span class="text-sm font-semibold uppercase tracking-wider text-accent-500">Corporate Pillars</span>
+      <h2 class="text-3xl font-extrabold text-white mt-1">Our Core Operating Standards</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div class="bg-accent-500/10 p-3 rounded-lg text-accent-400 inline-block">
+          <i data-lucide="scale" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white">Absolute Legality</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          We review title deeds, land convert approvals (NA status), municipal clearances, and RERA registration codes for every developer we represent on our portal.
+        </p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div class="bg-accent-500/10 p-3 rounded-lg text-accent-400 inline-block">
+          <i data-lucide="trending-up" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white">Micro-Market Intel</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          We run internal metrics checking price trends across Vesu, Adajan, and Althan to ensure buyers acquire property at proper valuations with optimal future liquidity.
+        </p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div class="bg-accent-500/10 p-3 rounded-lg text-accent-400 inline-block">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white">Premium Concierge</h3>
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          We manage virtual video walkthroughs, transport to site locations, stamp duty clearance coordination, bank loan options, and handover audits.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Timeline History Section -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+    <div class="text-center mb-16">
+      <span class="text-sm font-semibold uppercase tracking-wider text-accent-500">Corporate Milestones</span>
+      <h2 class="text-3xl font-extrabold text-white mt-1">Our Journey of Excellence</h2>
+    </div>
+
+    <div class="space-y-8 relative pl-6 border-l-2 border-slate-800">
+      <!-- 2018 -->
+      <div class="relative">
+        <div class="absolute -left-[31px] top-1 bg-accent-500 w-5 h-5 rounded-full border-4 border-primary-950"></div>
+        <span class="text-xs font-bold text-accent-500 block">2018</span>
+        <h4 class="font-bold text-white text-md mt-1">Foundation & Launch</h4>
+        <p class="text-xs text-slate-400 mt-1">DreamNest founded in Surat, Gujarat. Initial focus was local real estate advisory and residential bookings in Adajan and Vesu corridors.</p>
+      </div>
+
+      <!-- 2020 -->
+      <div class="relative">
+        <div class="absolute -left-[31px] top-1 bg-accent-500 w-5 h-5 rounded-full border-4 border-primary-950"></div>
+        <span class="text-xs font-bold text-accent-500 block">2020</span>
+        <h4 class="font-bold text-white text-md mt-1">Commercial Desk Launch</h4>
+        <p class="text-xs text-slate-400 mt-1">Expanded broker operations into commercial retail storefronts and corporate workspaces on Dumas Road and VIP Road.</p>
+      </div>
+
+      <!-- 2023 -->
+      <div class="relative">
+        <div class="absolute -left-[31px] top-1 bg-accent-500 w-5 h-5 rounded-full border-4 border-primary-950"></div>
+        <span class="text-xs font-bold text-accent-500 block">2023</span>
+        <h4 class="font-bold text-white text-md mt-1">Dedicated NRI Desk</h4>
+        <p class="text-xs text-slate-400 mt-1">Established a dedicated NRI assistance portal dealing with FEMA guidelines, repatriation pathways, and luxury villa portfolios.</p>
+      </div>
+
+      <!-- 2026 -->
+      <div class="relative">
+        <div class="absolute -left-[31px] top-1 bg-accent-500 w-5 h-5 rounded-full border-4 border-primary-950"></div>
+        <span class="text-xs font-bold text-accent-500 block">2026</span>
+        <h4 class="font-bold text-white text-md mt-1">Digital Marketplace Era</h4>
+        <p class="text-xs text-slate-400 mt-1">Launched the static client-side portal for rapid, responsive property filtering, live mortgage estimations, and virtual schedule bookings.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Our Agents - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24"
+      x-data="{
+        activeFilter: 'all',
+        showAgentModal: false,
+        showToast: false,
+        toastMessage: '',
+        agents: [
+          {% for a in agents %}
+          {
+            name: '{{ a.name }}',
+            role: '{{ a.bio }}',
+            areas: 'vesu, pal, adajan',
+            experience: '8+ Years',
+            languages: 'English, Hindi, Gujarati',
+            specialty: '{% if "Commercial" in a.bio %}commercial{% elif "NRI" in a.bio %}nri{% else %}residential{% endif %}',
+            phone: '{{ a.phone }}',
+            email: '{{ a.email }}',
+            img: '{{ a.image }}'
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ],
+        filteredAgents() {
+          if (this.activeFilter === 'all') return this.agents;
+          return this.agents.filter(a => a.specialty === this.activeFilter);
+        }
+      }">
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Page Title -->
+    <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between">
+      <div>
+        <span class="text-sm font-semibold uppercase tracking-wider text-accent-500">Expert Team</span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">DreamNest Surat Registered Advisers</h1>
+        <p class="text-slate-400 text-sm sm:text-base mt-2">Connect directly with RERA registered professionals covering Surat's prime developments.</p>
+      </div>
+      <button @click="showAgentModal = true" 
+              class="mt-6 md:mt-0 inline-flex items-center px-6 py-3 rounded-lg text-sm font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 shadow-md transition-all">
+        <i data-lucide="users-round" class="w-4 h-4 mr-2"></i> Join as a Broker Partner
+      </button>
+    </div>
+
+    <!-- Specialty Filters Bar -->
+    <div class="flex flex-wrap gap-2 mb-10 pb-4 border-b border-slate-800/80">
+      <button @click="activeFilter = 'all'" 
+              :class="activeFilter === 'all' ? 'bg-accent-500 text-primary-950 font-bold' : 'bg-slate-800 text-slate-300 hover:text-white'"
+              class="px-4 py-2 rounded-lg text-xs transition-colors">
+        All Specialists
+      </button>
+      <button @click="activeFilter = 'residential'" 
+              :class="activeFilter === 'residential' ? 'bg-accent-500 text-primary-950 font-bold' : 'bg-slate-800 text-slate-300 hover:text-white'"
+              class="px-4 py-2 rounded-lg text-xs transition-colors">
+        Residential Luxury
+      </button>
+      <button @click="activeFilter = 'commercial'" 
+              :class="activeFilter === 'commercial' ? 'bg-accent-500 text-primary-950 font-bold' : 'bg-slate-800 text-slate-300 hover:text-white'"
+              class="px-4 py-2 rounded-lg text-xs transition-colors">
+        Commercial Offices & Retail
+      </button>
+      <button @click="activeFilter = 'nri'" 
+              :class="activeFilter === 'nri' ? 'bg-accent-500 text-primary-950 font-bold' : 'bg-slate-800 text-slate-300 hover:text-white'"
+              class="px-4 py-2 rounded-lg text-xs transition-colors">
+        NRI Investments
+      </button>
+    </div>
+
+    <!-- Agents Grid Display -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <template x-for="agent in filteredAgents()" :key="agent.name">
+        <div class="glass-card rounded-2xl overflow-hidden flex flex-col group"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:leave="transition ease-in duration-200">
+          
+          <!-- Profile Photo -->
+          <div class="relative overflow-hidden aspect-square bg-slate-900">
+            <img :src="agent.img" :alt="agent.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-primary-950 via-transparent to-transparent opacity-60"></div>
+          </div>
+
+          <!-- Agent Bio Box -->
+          <div class="p-6 flex-grow flex flex-col justify-between space-y-4">
+            <div>
+              <h3 class="font-bold text-white text-lg" x-text="agent.name"></h3>
+              <p class="text-xs text-accent-500 font-semibold" x-text="agent.role"></p>
+              
+              <div class="space-y-2 mt-4 text-xs text-slate-300">
+                <p><span class="text-slate-400">Core Areas:</span> <span x-text="agent.areas"></span></p>
+                <p><span class="text-slate-400">Experience:</span> <span x-text="agent.experience"></span></p>
+                <p><span class="text-slate-400">Languages:</span> <span x-text="agent.languages"></span></p>
+              </div>
+            </div>
+
+            <!-- Quick Communication buttons -->
+            <div class="grid grid-cols-2 gap-2 pt-4 border-t border-slate-800">
+              <a :href="'tel:' + agent.phone" class="inline-flex items-center justify-center py-2.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white transition-colors">
+                <i data-lucide="phone" class="w-3.5 h-3.5 mr-2"></i> Call
+              </a>
+              <a href="{{ url_for('contact') }}" class="inline-flex items-center justify-center py-2.5 rounded bg-accent-500 hover:bg-accent-400 text-xs text-primary-950 font-bold transition-colors">
+                <i data-lucide="mail" class="w-3.5 h-3.5 mr-2"></i> Email
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </template>
+    </div>
+
+  </div>
+
+  <!-- Broker Recruitment Modal -->
+  <div x-show="showAgentModal" 
+       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary-950/80 backdrop-blur-sm"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:leave="transition ease-in duration-200"
+       style="display: none;">
+    
+    <div @click.away="showAgentModal = false" 
+         class="glass-card-no-hover w-full max-w-lg rounded-2xl border border-slate-700/60 p-6 sm:p-8 space-y-6 relative shadow-2xl">
+      
+      <button @click="showAgentModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center">
+        <h3 class="text-2xl font-bold text-white">DreamNest Partnership Desk</h3>
+        <p class="text-xs text-slate-400 mt-1">Register as a broker partner. Work with Surat's finest luxury clients.</p>
+      </div>
+
+      <div id="broker-form-container">
+        <form hx-post="{{ url_for('submit_inquiry') }}"
+              hx-target="#broker-form-container"
+              class="space-y-4 text-left">
+          
+          <input type="hidden" name="type" value="Broker Application">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
+            <input type="text" name="name" required placeholder="e.g. Ketan Modi" 
+                   class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Mobile</label>
+              <input type="tel" name="phone" required placeholder="+91 99999 88888" 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Gujarat RERA License No.</label>
+              <input type="text" name="rera" required placeholder="e.g. AG039500..." 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Core Specialty</label>
+              <select name="specialty" class="w-full rounded-lg glass-input py-2.5 px-3 text-sm appearance-none">
+                <option value="residential">Residential Luxury</option>
+                <option value="commercial">Commercial Hubs</option>
+                <option value="land">Agricultural & Plotting</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Years of Experience</label>
+              <input type="number" name="experience" min="1" required placeholder="e.g. 5" 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" 
+                    class="w-full py-3.5 rounded-lg text-sm font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-colors shadow-lg shadow-accent-500/20">
+              Submit Broker Application
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+{% endblock %}

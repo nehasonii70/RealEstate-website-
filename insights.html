@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Surat Market Insights - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Top Title Section -->
+    <div class="mb-12 text-center lg:text-left">
+      <span class="text-sm font-semibold uppercase tracking-wider text-accent-500 font-medium">Market Analytics</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Surat Real Estate Trends & Forecast</h1>
+      <p class="text-slate-300 max-w-3xl mt-3 leading-relaxed">
+        Analyze price metrics across residential sub-markets, track the upcoming Surat Metro Phase 1 corridor impact, and estimate potential rental yield using our dynamic calculator.
+      </p>
+    </div>
+
+    <!-- ROI and Yield Calculator & Pricing Trends -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      
+      <!-- ROI/Rental Yield Calculator -->
+      <div class="glass-card-no-hover p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6 shadow-xl"
+           x-data="{
+             buyPrice: 15000000,
+             monthlyRentVal: 60000,
+             annualExp: 90000,
+             get grossAnnualRent() {
+               return this.monthlyRentVal * 12;
+             },
+             get netAnnualRent() {
+               return this.grossAnnualRent - this.annualExp;
+             },
+             get grossYield() {
+               return ((this.grossAnnualRent / this.buyPrice) * 100).toFixed(2);
+             },
+             get netYield() {
+               if (this.netAnnualRent <= 0) return '0.00';
+               return ((this.netAnnualRent / this.buyPrice) * 100).toFixed(2);
+             },
+             get projectedValue() {
+               // 5 years compounded at 8.2% annual growth (Surat average)
+               return Math.round(this.buyPrice * Math.pow(1.082, 5));
+             },
+             formatCurrency(value) {
+               if (value >= 10000000) {
+                 return '₹' + (value / 10000000).toFixed(2) + ' Cr';
+               } else if (value >= 100000) {
+                 return '₹' + (value / 100000).toFixed(2) + ' Lakh';
+               } else {
+                 return '₹' + value.toLocaleString('en-IN');
+               }
+             }
+           }">
+        
+        <div>
+          <h3 class="text-xl font-bold text-white mb-1">ROI & Yield Calculator</h3>
+          <p class="text-xs text-slate-400">Calculate net return on investment and capital values for Surat properties.</p>
+        </div>
+
+        <!-- Purchase Price -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Acquisition Value</span>
+            <span class="text-accent-500 font-bold" x-text="formatCurrency(buyPrice)"></span>
+          </div>
+          <input type="range" min="3000000" max="80000000" step="500000" x-model="buyPrice" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>₹30 Lakh</span>
+            <span>₹4.0 Crore</span>
+            <span>₹8.0 Crore</span>
+          </div>
+        </div>
+
+        <!-- Monthly Rent -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Estimated Monthly Rent</span>
+            <span class="text-accent-500 font-bold" x-text="'₹' + monthlyRentVal.toLocaleString('en-IN') + ' / mo'"></span>
+          </div>
+          <input type="range" min="10000" max="250000" step="2000" x-model="monthlyRentVal" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>₹10,000</span>
+            <span>₹1.2 Lakh</span>
+            <span>₹2.5 Lakh</span>
+          </div>
+        </div>
+
+        <!-- Maintenance/Taxes -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <span>Annual Outgoings (Taxes + Maintenance)</span>
+            <span class="text-accent-500 font-bold" x-text="formatCurrency(annualExp)"></span>
+          </div>
+          <input type="range" min="5000" max="150000" step="5000" x-model="annualExp" 
+                 class="w-full accent-accent-500 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500">
+            <span>₹5,000</span>
+            <span>₹75,000</span>
+            <span>₹1.5 Lakh</span>
+          </div>
+        </div>
+
+        <!-- Yield Outputs -->
+        <div class="bg-primary-950 p-6 rounded-xl border border-slate-800 space-y-4 text-xs">
+          <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-800 text-center">
+            <div>
+              <span class="text-slate-400 block font-semibold">Gross Rental Yield</span>
+              <span class="text-2xl font-extrabold text-accent-500 mt-1 block" x-text="grossYield + '%'"></span>
+            </div>
+            <div>
+              <span class="text-slate-400 block font-semibold">Net Yield (ROI)</span>
+              <span class="text-2xl font-extrabold text-accent-500 mt-1 block" x-text="netYield + '%'"></span>
+            </div>
+          </div>
+          <div class="flex justify-between text-slate-300">
+            <span>Projected Asset Value (In 5 Years at 8.2% p.a.):</span>
+            <span class="font-bold text-white text-sm" x-text="formatCurrency(projectedValue)"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Trends & Infrastructures -->
+      <div class="space-y-6">
+        <!-- Pricing Trends Box -->
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-lg font-bold text-white mb-6 pb-2 border-b border-slate-800 flex items-center">
+            <i data-lucide="line-chart" class="w-5 h-5 text-accent-500 mr-2"></i> Surat Micro-Market Price Guides (2026)
+          </h3>
+          
+          <div class="space-y-4">
+            <!-- Area 1 -->
+            <div class="flex justify-between items-center py-2.5 border-b border-slate-800/60">
+              <div>
+                <h4 class="font-bold text-white text-sm">Vesu Luxury Corridor</h4>
+                <p class="text-[10px] text-slate-400">High-end penthouses & smart communities</p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-bold text-white">₹7,800 - ₹9,500 / sq ft</span>
+                <span class="text-[10px] text-green-400 font-bold block">+12.4% YoY</span>
+              </div>
+            </div>
+
+            <!-- Area 2 -->
+            <div class="flex justify-between items-center py-2.5 border-b border-slate-800/60">
+              <div>
+                <h4 class="font-bold text-white text-sm">Pal Tapi Riverfront Zone</h4>
+                <p class="text-[10px] text-slate-400">Premium villas & mid-luxury flats</p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-bold text-white">₹6,200 - ₹7,800 / sq ft</span>
+                <span class="text-[10px] text-green-400 font-bold block">+9.8% YoY</span>
+              </div>
+            </div>
+
+            <!-- Area 3 -->
+            <div class="flex justify-between items-center py-2.5 border-b border-slate-800/60">
+              <div>
+                <h4 class="font-bold text-white text-sm">Dumas Road High-Street Retail</h4>
+                <p class="text-[10px] text-slate-400">Showrooms & corporate grade-A suites</p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-bold text-white">₹12,000 - ₹16,000 / sq ft</span>
+                <span class="text-[10px] text-green-400 font-bold block">+14.2% YoY</span>
+              </div>
+            </div>
+
+            <!-- Area 4 -->
+            <div class="flex justify-between items-center py-2.5">
+              <div>
+                <h4 class="font-bold text-white text-sm">Adajan Residential Sector</h4>
+                <p class="text-[10px] text-slate-400">Family apartments & commercial shops</p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-bold text-white">₹5,000 - ₹6,500 / sq ft</span>
+                <span class="text-[10px] text-green-400 font-bold block">+6.5% YoY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infrastructure Driver Brief -->
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+            <i data-lucide="train-front" class="w-5 h-5 text-accent-500 mr-2"></i> Infrastructure Value Drivers
+          </h3>
+          <div class="space-y-4 text-xs text-slate-400">
+            <p>
+              <strong class="text-white">Surat Metro Rail Corridor:</strong> Phase 1 (Sarthana to Dream City and Bhesan to Saroli) is heavily driving commercial capital valuation growth on VIP Road and Dumas Road.
+            </p>
+            <p>
+              <strong class="text-white">Tapi Riverfront Development:</strong> The extension of riverfront parks near Pal and Adajan is driving high capital demand for residential developments featuring river views.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

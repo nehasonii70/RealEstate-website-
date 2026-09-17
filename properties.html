@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Properties in Surat - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24" 
+      x-data="{
+        viewMode: 'grid',
+        wishlists: {}
+      }">
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+      <span class="text-sm font-semibold uppercase tracking-wider text-accent-500">Search Listings</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Explore Properties in Surat</h1>
+      <p class="text-slate-400 text-sm sm:text-base mt-2">Filter and browse through our exclusive catalog of real estate listings in Surat's finest residential and commercial spaces.</p>
+    </div>
+
+    <!-- Filters & Results Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      
+      <!-- Sidebar Filter controls (HTMX Form) -->
+      <div class="lg:col-span-1 space-y-6">
+        <form hx-get="{{ url_for('properties_filter') }}" 
+              hx-target="#properties-grid" 
+              hx-trigger="change, keyup delay:300ms from:input[type=text]"
+              class="glass-card-no-hover p-6 rounded-2xl border border-slate-800"
+              id="filter-form">
+          <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-800">
+            <h3 class="font-bold text-white text-md flex items-center">
+              <i data-lucide="sliders-horizontal" class="w-4 h-4 text-accent-500 mr-2"></i> Filter Panel
+            </h3>
+            <button type="reset" 
+                    @click="setTimeout(() => { document.getElementById('filter-form').dispatchEvent(new Event('change')) }, 10)"
+                    class="text-xs text-accent-500 hover:text-accent-400 underline font-medium">
+              Reset All
+            </button>
+          </div>
+
+          <!-- Tab (Buy / Rent) -->
+          <div class="space-y-2 mb-6">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Acquisition Mode</label>
+            <div class="grid grid-cols-2 gap-2 bg-primary-950 p-1.5 rounded-lg border border-slate-800" x-data="{ currentCategory: '{{ category }}' }">
+              <button type="button" @click="currentCategory = 'buy'; $refs.categoryInput.value = 'buy'; $refs.categoryInput.dispatchEvent(new Event('change'))" 
+                      :class="currentCategory === 'buy' ? 'bg-accent-500 text-primary-950 font-bold' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-3 rounded text-xs transition-all duration-200">
+                Buy
+              </button>
+              <button type="button" @click="currentCategory = 'rent'; $refs.categoryInput.value = 'rent'; $refs.categoryInput.dispatchEvent(new Event('change'))" 
+                      :class="currentCategory === 'rent' ? 'bg-accent-500 text-primary-950 font-bold' : 'text-slate-400 hover:text-white'"
+                      class="py-2 px-3 rounded text-xs transition-all duration-200">
+                Rent
+              </button>
+              <input type="hidden" name="category" x-ref="categoryInput" value="{{ category }}">
+            </div>
+          </div>
+
+          <!-- Search Field -->
+          <div class="space-y-2 mb-6">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Search Keyword</label>
+            <div class="relative">
+              <input type="text" name="q" value="{{ query }}" placeholder="e.g. Penthouse, Villa..." 
+                     class="w-full rounded-lg glass-input py-2.5 pl-3 pr-10 text-sm">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                <i data-lucide="search" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Filter -->
+          <div class="space-y-2 mb-6">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Location</label>
+            <div class="relative">
+              <select name="location" class="w-full rounded-lg glass-input py-2.5 pl-3 pr-10 text-sm appearance-none">
+                <option value="">All Locations</option>
+                <option value="vesu" {% if location == 'vesu' %}selected{% endif %}>Vesu</option>
+                <option value="adajan" {% if location == 'adajan' %}selected{% endif %}>Adajan</option>
+                <option value="pal" {% if location == 'pal' %}selected{% endif %}>Pal</option>
+                <option value="piplod" {% if location == 'piplod' %}selected{% endif %}>Piplod</option>
+                <option value="althan" {% if location == 'althan' %}selected{% endif %}>Althan</option>
+                <option value="citylight" {% if location == 'citylight' %}selected{% endif %}>City Light</option>
+                <option value="viproad" {% if location == 'viproad' %}selected{% endif %}>VIP Road</option>
+                <option value="dumasroad" {% if location == 'dumasroad' %}selected{% endif %}>Dumas Road</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Property Type Filter -->
+          <div class="space-y-2 mb-6">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Property Type</label>
+            <div class="relative">
+              <select name="type" class="w-full rounded-lg glass-input py-2.5 pl-3 pr-10 text-sm appearance-none">
+                <option value="">All Types</option>
+                <option value="apartment" {% if type == 'apartment' %}selected{% endif %}>Apartment / Flat</option>
+                <option value="villa" {% if type == 'villa' %}selected{% endif %}>Luxury Villa</option>
+                <option value="plot" {% if type == 'plot' %}selected{% endif %}>Plot</option>
+                <option value="commercial" {% if type == 'commercial' %}selected{% endif %}>Commercial Hub</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Budget Filter -->
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Range</label>
+            <div class="relative">
+              <select name="price_range" class="w-full rounded-lg glass-input py-2.5 pl-3 pr-10 text-sm appearance-none">
+                <option value="">Any Price</option>
+                <option value="budget" {% if price_range == 'budget' %}selected{% endif %}>Under ₹75 Lakh / ₹35,000</option>
+                <option value="mid" {% if price_range == 'mid' %}selected{% endif %}>₹75 Lakh - ₹1.5 Cr / ₹35k - 75k</option>
+                <option value="premium" {% if price_range == 'premium' %}selected{% endif %}>₹1.5 Cr - ₹3 Cr / Above ₹75k</option>
+                <option value="luxury" {% if price_range == 'luxury' %}selected{% endif %}>Above ₹3 Cr</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Grid Listings Display -->
+      <div class="lg:col-span-3">
+        
+        <!-- View Control Bar -->
+        <div class="flex justify-between items-center bg-primary-900/30 border border-slate-800 p-4 rounded-xl mb-6">
+          <p class="text-xs sm:text-sm text-slate-400">
+            Browse our verified inventory in Surat
+          </p>
+          <div class="flex items-center space-x-2">
+            <button @click="viewMode = 'grid'" 
+                    :class="viewMode === 'grid' ? 'bg-accent-500 text-primary-950' : 'text-slate-400 bg-slate-800 hover:text-white'"
+                    class="p-2 rounded transition-colors" aria-label="Grid View">
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            </button>
+            <button @click="viewMode = 'list'" 
+                    :class="viewMode === 'list' ? 'bg-accent-500 text-primary-950' : 'text-slate-400 bg-slate-800 hover:text-white'"
+                    class="p-2 rounded transition-colors" aria-label="List View">
+              <i data-lucide="menu" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Properties Grid Container (HTMX swaps items inside here) -->
+        <div id="properties-grid" 
+             :class="viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex flex-col space-y-6'">
+          {% include 'partials/properties_grid.html' %}
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

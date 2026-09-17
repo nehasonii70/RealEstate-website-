@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}{{ property.title }} - DreamNest Surat{% endblock %}
+
+{% block content %}
+<main class="flex-grow pt-28 pb-24" 
+      x-data="{
+        activeImageIndex: 0,
+        activeTab: 'overview',
+        showTourModal: false,
+        showToast: false,
+        toastMessage: '',
+        wishlists: {}
+      }">
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Toast Notification (Handled by HTMX events or local Alpine triggers) -->
+    <div id="toast-container"></div>
+
+    <!-- Detail Header -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wider text-accent-500">{{ property.type }}</span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">{{ property.title }}</h1>
+        <p class="text-slate-400 text-sm sm:text-base mt-2 flex items-center">
+          <i data-lucide="map-pin" class="w-4 h-4 text-accent-500 mr-1.5"></i> <span class="capitalize">{{ property.location }}</span>, Surat
+        </p>
+      </div>
+      <div class="mt-4 md:mt-0 text-left md:text-right">
+        <span class="text-xs text-slate-400 uppercase font-semibold block">Asking Price</span>
+        <span class="text-3xl font-extrabold text-accent-500 block">{{ property.price_str }}</span>
+      </div>
+    </div>
+
+    <!-- Grid: Gallery and Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      
+      <!-- Left: Image Gallery & Tabs -->
+      <div class="lg:col-span-2 space-y-8">
+        
+        <!-- Interactive Gallery Component -->
+        <div class="space-y-4">
+          <!-- Large Main Image -->
+          <div class="relative rounded-2xl overflow-hidden aspect-video bg-slate-900 border border-slate-800">
+            {% set img_list = property.image.split(',') %}
+            <img :src="'{{ img_list[0] }}' && ['{{ img_list|join("','") }}'][activeImageIndex]" alt="{{ property.title }}" 
+                 class="w-full h-full object-cover transition-opacity duration-300">
+          </div>
+          <!-- Thumbnails Row -->
+          <div class="grid grid-cols-4 gap-4">
+            {% for img in img_list %}
+              <button @click="activeImageIndex = {{ loop.index0 }}" 
+                      class="relative rounded-lg overflow-hidden aspect-video bg-slate-900 border transition-all"
+                      :class="activeImageIndex === {{ loop.index0 }} ? 'border-accent-500 ring-2 ring-accent-500/20' : 'border-slate-800 hover:border-slate-600'">
+                <img src="{{ img }}" class="w-full h-full object-cover">
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Description and Specs Tabs -->
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800">
+          <!-- Tabs Controls -->
+          <div class="flex space-x-6 border-b border-slate-800 pb-3 mb-6 text-sm font-semibold">
+            <button @click="activeTab = 'overview'" 
+                    :class="activeTab === 'overview' ? 'text-accent-500 border-b-2 border-accent-500 pb-3' : 'text-slate-400 hover:text-white'"
+                    class="transition-all">Overview</button>
+            <button @click="activeTab = 'amenities'" 
+                    :class="activeTab === 'amenities' ? 'text-accent-500 border-b-2 border-accent-500 pb-3' : 'text-slate-400 hover:text-white'"
+                    class="transition-all">Amenities</button>
+            <button @click="activeTab = 'trends'" 
+                    :class="activeTab === 'trends' ? 'text-accent-500 border-b-2 border-accent-500 pb-3' : 'text-slate-400 hover:text-white'"
+                    class="transition-all">Investment Insights</button>
+          </div>
+
+          <!-- Tab Content 1: Overview -->
+          <div x-show="activeTab === 'overview'" class="space-y-4">
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed">{{ property.description }}</p>
+            
+            <!-- Quick Stats Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+              <div class="bg-primary-950 p-4 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 block uppercase">Bedrooms</span>
+                <span class="text-md font-bold text-white mt-1 block">{{ property.bedrooms }}</span>
+              </div>
+              <div class="bg-primary-950 p-4 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 block uppercase">Bathrooms</span>
+                <span class="text-md font-bold text-white mt-1 block">{{ property.bathrooms }}</span>
+              </div>
+              <div class="bg-primary-950 p-4 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 block uppercase">Super Area</span>
+                <span class="text-md font-bold text-white mt-1 block">{{ property.area }}</span>
+              </div>
+              <div class="bg-primary-950 p-4 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 block uppercase">RERA Registered</span>
+                <span class="text-xs font-bold text-accent-500 mt-1.5 block truncate">PR/GJ/SURAT/061926/{{ property.id }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content 2: Amenities -->
+          <div x-show="activeTab === 'amenities'">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Render default amenities based on type -->
+              {% if property.type == 'commercial' %}
+                {% set amenities = ['High-speed Passenger Elevators', 'Integrated Fire-Safety Setup', 'Centralized VRF AC', 'Corporate Lobby Lounge', 'Fiber-Optic Telecom Ring', 'Rooftop Cafe & Dining', 'Double-Level Gated Parking'] %}
+              {% elif property.type == 'villa' %}
+                {% set amenities = ['Landscaped Private Garden', 'Smart Energy Management System', 'Private Gym Suite', '4 Car Gated Driveway', 'RERA Compliant', 'Clubhouse & Squash Court Access', 'Water Filtration System'] %}
+              {% else %}
+                {% set amenities = ['Private Infinity Pool', 'VRV Air Conditioning', 'Italian Marble Flooring', '3 Reserved Basement Parkings', 'Concierge & Valet Service', '24/7 Advanced CCTV Security', 'Rooftop Lounge access'] %}
+              {% endif %}
+
+              {% for am in amenities %}
+                <div class="flex items-center space-x-3 py-2 border-b border-slate-800/60">
+                  <span class="w-2.5 h-2.5 rounded-full bg-accent-500"></span>
+                  <span class="text-slate-300 text-sm font-medium">{{ am }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Tab Content 3: Trends -->
+          <div x-show="activeTab === 'trends'" class="space-y-4">
+            <h4 class="text-white font-bold text-md">Surat Real Estate Market Update</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              {% if property.location == 'vesu' %}
+                Located in Vesu, Surat's fastest-appreciating luxury zone. Vesu has seen a 14% year-on-year capital value rise over the past 3 years. Average monthly rents for premium penthouses hover around ₹85,000 to ₹1,20,000, offering strong rental yields for NRI buyers.
+              {% elif property.location == 'pal' %}
+                Pal is Surat's preferred high-end residential neighborhood, characterized by green spaces and wide roads. With close proximity to top schools and healthcare, Palacio Villa holds excellent multi-generation resale value.
+              {% else %}
+                VIP Road and Dumas Road continue to serve as Surat's commercial arterial hub. Average commercial yields stand at a solid 7.5% - 8.2% annual net returns, making this space an outstanding asset-class for commercial investors.
+              {% endif %}
+            </p>
+            <div class="bg-accent-500/5 border border-accent-500/10 p-4 rounded-lg mt-4">
+              <span class="text-xs font-bold text-accent-400 flex items-center mb-1">
+                <i data-lucide="info" class="w-3.5 h-3.5 mr-1.5"></i> DreamNest Capital Advisory
+              </span>
+              <p class="text-xs text-slate-400">Buying property in Surat is subject to Gujarat Stamp Duty (4.9%) and Registration Fees (1%). Consult our advisory desk for legal structure options.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right: Agent Sidebar & Tour Schedule Action -->
+      <div class="space-y-8">
+        
+        <!-- Agent Bio Card -->
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800 text-center">
+          <h3 class="font-bold text-white text-lg mb-6 pb-2 border-b border-slate-800">Assigned Broker</h3>
+          <div class="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-2 border-accent-500 shadow-md">
+            <img src="{{ agent.image }}" alt="{{ agent.name }}" class="w-full h-full object-cover">
+          </div>
+          <h4 class="font-bold text-white text-md">{{ agent.name }}</h4>
+          <p class="text-xs text-accent-500 mt-0.5">{{ agent.bio }}</p>
+          
+          <div class="space-y-3 mt-6 text-sm text-left">
+            <div class="flex items-center text-slate-300">
+              <i data-lucide="phone" class="w-4 h-4 text-accent-500 mr-3"></i> {{ agent.phone }}
+            </div>
+            <div class="flex items-center text-slate-300">
+              <i data-lucide="mail" class="w-4 h-4 text-accent-500 mr-3"></i> {{ agent.email }}
+            </div>
+            <div class="flex items-center text-slate-300">
+              <i data-lucide="languages" class="w-4 h-4 text-accent-500 mr-3"></i> English, Hindi, Gujarati
+            </div>
+          </div>
+
+          <button @click="showTourModal = true" 
+                  class="w-full mt-8 py-3 rounded-lg text-sm font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 shadow-lg hover:shadow-accent-500/20 transition-all duration-300">
+            Schedule Property Tour
+          </button>
+        </div>
+
+        <!-- Document Download Box -->
+        <div class="glass-card-no-hover p-6 rounded-2xl border border-slate-800">
+          <h4 class="font-bold text-white text-md mb-4 flex items-center">
+            <i data-lucide="folder-down" class="w-4 h-4 text-accent-500 mr-2"></i> Documents
+          </h4>
+          <div class="space-y-3 text-xs">
+            <a href="#" class="flex items-center justify-between p-3 rounded bg-primary-950 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all">
+              <span class="flex items-center"><i data-lucide="file-text" class="w-3.5 h-3.5 text-accent-400 mr-2"></i> Property Brochure (PDF)</span>
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            </a>
+            <a href="#" class="flex items-center justify-between p-3 rounded bg-primary-950 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all">
+              <span class="flex items-center"><i data-lucide="file-check-2" class="w-3.5 h-3.5 text-accent-400 mr-2"></i> RERA Approval Certificate</span>
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Tour Schedule Dialog Modal (Alpine x-show) -->
+  <div x-show="showTourModal" 
+       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary-950/80 backdrop-blur-sm"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:leave="transition ease-in duration-200"
+       style="display: none;">
+    
+    <div @click.away="showTourModal = false" 
+         class="glass-card-no-hover w-full max-w-lg rounded-2xl border border-slate-700/60 p-6 sm:p-8 space-y-6 shadow-2xl relative">
+      
+      <button @click="showTourModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center">
+        <h3 class="text-2xl font-bold text-white">Book Property Tour</h3>
+        <p class="text-xs text-slate-400 mt-1">Select your preferred slot to visit <span class="text-accent-500 font-bold">{{ property.title }}</span></p>
+      </div>
+
+      <!-- HTMX Action Form -->
+      <div id="tour-form-container">
+        <form hx-post="{{ url_for('submit_inquiry', property_id=property.id) }}"
+              hx-target="#tour-form-container"
+              class="space-y-4 text-left">
+          
+          <input type="hidden" name="type" value="Tour Request">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Your Name</label>
+            <input type="text" name="name" required placeholder="e.g. Anand Vyas" 
+                   class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email Address</label>
+            <input type="email" name="email" required placeholder="e.g. anand@example.com" 
+                   class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Contact Phone</label>
+            <input type="tel" name="phone" required placeholder="e.g. +91 99999 88888" 
+                   class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Select Date</label>
+              <input type="date" name="date" required 
+                     class="w-full rounded-lg glass-input py-2.5 px-3 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Select Time</label>
+              <select name="time" required 
+                      class="w-full rounded-lg glass-input py-2.5 px-3 text-sm appearance-none">
+                <option value="">Choose Time</option>
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="02:00 PM">02:00 PM</option>
+                <option value="04:00 PM">04:00 PM</option>
+                <option value="06:00 PM">06:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tour Type</label>
+            <div class="flex space-x-4 mt-1.5">
+              <label class="inline-flex items-center text-sm text-slate-300 cursor-pointer">
+                <input type="radio" name="tour_type" value="In-Person" checked class="text-accent-500 focus:ring-accent-500 h-4 w-4 bg-primary-950 border-slate-700 mr-2">
+                In-Person Visit
+              </label>
+              <label class="inline-flex items-center text-sm text-slate-300 cursor-pointer">
+                <input type="radio" name="tour_type" value="Virtual" class="text-accent-500 focus:ring-accent-500 h-4 w-4 bg-primary-950 border-slate-700 mr-2">
+                Video Consultation
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" 
+                    class="w-full py-3.5 rounded-lg text-sm font-bold text-primary-950 bg-accent-500 hover:bg-accent-400 transition-colors shadow-lg shadow-accent-500/20">
+              Confirm Schedule Request
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+{% endblock %}
